@@ -262,15 +262,19 @@ leaflet(mn_covid_all) %>%
 favorite_by_anna <- tibble(
   place = c("Saint Paul Home", "Kimchi Tofu House", "Tono Pizzeria + Cheesesteak", 
             "Macalester College", "Science Museum of Minnesota", "NYC Home", 
-            "Citi Field", "Target Field", "The High Line", "Riverside Park"), 
+            "Citi Field", "Target Field", "The High Line", 
+            "Riverside Park", "Jin Fong Restaurant", "Kate's Seafood", 
+            "Long Nook Beach"), 
   long = c(-93.15993888846154, -93.22693673444148, -93.16733278846144, 
            -93.16905451640325, -93.09913377060474,  -73.9717327732488, 
            -73.84583203092146, -93.27759701544593, -74.0039163349285, 
-           -73.9729219893889), 
+           -73.9729219893889, -73.97883524441367, -70.11022135787704,
+           -70.03705415706891), 
   lat = c(44.93189077914104, 44.97333972848076, 44.934273777055594, 
           44.93861924693568, 44.946322266714894, 40.79972265717478, 
           40.75725834451115, 44.9818947558888, 40.751173188177894, 
-          40.801862889204585), 
+          40.801862889204585, 40.78301103574647, 41.75483506515295, 
+          42.02195492958253), 
   #top3 = c("Top 3", "", "Top 3")
 )
 

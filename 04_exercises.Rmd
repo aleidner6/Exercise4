@@ -164,7 +164,7 @@ ggmap(twincities) + # creates the map "background"
              aes(x = Longitude, y = Latitude), 
              alpha = 1, 
              size = 2) +
-  annotate(geom = "text", x = 44.9416, y = -93.16, label = "Macalester")  +
+  annotate(geom = "text", y = 44.9416, x = -93.16, label = "Macalester College")  +
   labs(title = "Starbucks in the Twin Cities") +
   theme_map()
 ```
@@ -185,7 +185,6 @@ starbucks_with_2018_pop_est <- #creates new dataset
   left_join(census_pop_est_2018,
             by = c("state_name" = "state")) %>% #joins starbucks_us_by_state dataset with the census_pop dataset. since the starbucks_us dataset calls the state variable "state_name" and the census dataset calls the state variable "state", the by line matches those two variables to the same one. 
   mutate(starbucks_per_10000 = (n/est_pop_2018)*10000) #creates variable to show the number of Starbucks per 10,000 people per state
-starbucks_with_2018_pop_est
 ```
 
   6. **`dplyr` review**: Look through the code above and describe what each line of code does.
@@ -202,51 +201,20 @@ starbucks_with_2018_pop_est %>%
   ggplot() +
   geom_map(map = states_map,
            aes(map_id = state_name,
-               fill = n)) +
-  #This assures the map looks decently nice:
+               fill = n/est_pop_2018*10000)) +
+  geom_point(data = Starbucks %>%
+               filter(`Country` == "US") %>%
+               filter(`State/Province` != "AK") %>%
+  filter(`State/Province` != "HI"), 
+             aes(x = Longitude, y = Latitude), 
+             alpha = .3, 
+             size = .1, 
+             color = "goldenrod") +
   expand_limits(x = states_map$long, y = states_map$lat) + 
-  theme_map()
-```
-
-```{r}
-pal <- colorNumeric("magma",
-                    domain = starbucks_with_2018_pop_est$starbucks_per_10000)
-
-leaflet(starbucks_with_2018_pop_est) %>%
-  addTiles() %>% 
-
-
-(fillColor = ~pal(starbucks_per_10000), 
-              stroke = FALSE, 
-              label = ~paste(str_to_tile(state), 
-                             ":", 
-                             round(starbucks_per_10000,0), 
-                             .sep = ""), 
-              highlight = highlightOptions(
-                color = "black", 
-                fillOpacity = 0.9, 
-                bringToFront = FALSE))
-
-
-leaflet(mn_covid_all) %>% 
-  addTiles() %>% 
-  addPolygons(fillColor = ~pal2(cases_per_10000),
-              stroke = FALSE,
-              fillOpacity = .7,
-              label = ~paste(str_to_title(region),
-                                ":",
-                                round(cases_per_10000,0),
-                                .sep = ""),
-              highlight = highlightOptions( 
-                                 color = "black",
-                                 fillOpacity = 0.9,
-                                 bringToFront = FALSE)) %>% 
-  addLegend(position = "bottomright",
-            pal = pal2, 
-            values = ~cases_per_10000,
-            title = "Cases per 10,000")
-
-
+  scale_fill_viridis_c(option = "plasma") +
+  theme_map() +
+  labs(fill = "Number of Starbucks per 10,000 people", 
+       caption = "Plot created by Anna Leidner")
 ```
   
 
@@ -260,23 +228,41 @@ leaflet(mn_covid_all) %>%
 #Anna's favorite places 
 
 favorite_by_anna <- tibble(
-  place = c("Saint Paul Home", "Kimchi Tofu House", "Tono Pizzeria + Cheesesteak", 
-            "Macalester College", "Science Museum of Minnesota", "NYC Home", 
-            "Citi Field", "Target Field", "The High Line", 
-            "Riverside Park", "Jin Fong Restaurant", "Kate's Seafood", 
+  place = c("Kimchi Tofu House", "Tono Pizzeria + Cheesesteak", 
+            "Macalester College", "Science Museum of Minnesota", "Target Field", "Saint Paul Home",
+            "Riverside Park", "NYC Home", "Jin Fong Restaurant", "The High Line", "Citi Field", "Kate's Seafood", 
             "Long Nook Beach"), 
-  long = c(-93.15993888846154, -93.22693673444148, -93.16733278846144, 
-           -93.16905451640325, -93.09913377060474,  -73.9717327732488, 
-           -73.84583203092146, -93.27759701544593, -74.0039163349285, 
-           -73.9729219893889, -73.97883524441367, -70.11022135787704,
+  long = c( -93.22693673444148, -93.16733278846144, 
+           -93.16905451640325, -93.09913377060474,   
+           -93.27759701544593, -93.15993888846154,
+           -73.9729219893889, -73.9717327732488, -73.97883524441367,  -74.0039163349285, -73.84583203092146, -70.11022135787704,
            -70.03705415706891), 
-  lat = c(44.93189077914104, 44.97333972848076, 44.934273777055594, 
-          44.93861924693568, 44.946322266714894, 40.79972265717478, 
-          40.75725834451115, 44.9818947558888, 40.751173188177894, 
-          40.801862889204585, 40.78301103574647, 41.75483506515295, 
+  lat = c(44.97333972848076, 44.934273777055594, 
+          44.93861924693568, 44.946322266714894,  
+          44.9818947558888, 44.93189077914104, 
+          40.801862889204585, 40.79972265717478, 40.78301103574647, 40.751173188177894, 40.75725834451115, 41.75483506515295, 
           42.02195492958253), 
-  #top3 = c("Top 3", "", "Top 3")
+  top3 = c("no", "no", "yes", "no", "no", "no", "yes", "yes", "no", "no", "no", "no", "no")
 )
+
+# favorite_by_anna <- tibble(
+#   place = c("Saint Paul Home", "Kimchi Tofu House", "Tono Pizzeria + Cheesesteak", 
+#             "Macalester College", "Science Museum of Minnesota", "NYC Home", 
+#             "Citi Field", "Target Field", "The High Line", 
+#             "Riverside Park", "Jin Fong Restaurant", "Kate's Seafood", 
+#             "Long Nook Beach"), 
+#   long = c(-93.15993888846154, -93.22693673444148, -93.16733278846144, 
+#            -93.16905451640325, -93.09913377060474,  -73.9717327732488, 
+#            -73.84583203092146, -93.27759701544593, -74.0039163349285, 
+#            -73.9729219893889, -73.97883524441367, -70.11022135787704,
+#            -70.03705415706891), 
+#   lat = c(44.93189077914104, 44.97333972848076, 44.934273777055594, 
+#           44.93861924693568, 44.946322266714894, 40.79972265717478, 
+#           40.75725834451115, 44.9818947558888, 40.751173188177894, 
+#           40.801862889204585, 40.78301103574647, 41.75483506515295, 
+#           42.02195492958253), 
+#   top3 = c("", "", "", "", "", "Top 3", "", "", "", "Top 3", "", "", "Top 3")
+# )
 
 leaflet(data = favorite_by_anna) %>% 
   addTiles() %>% 
@@ -286,6 +272,25 @@ leaflet(data = favorite_by_anna) %>%
 ```
 
   * Create a `leaflet` map that uses circles to indicate your favorite places. Label them with the name of the place. Choose the base map you like best. Color your 3 favorite places differently than the ones that are not in your top 3 (HINT: `colorFactor()`). Add a legend that explains what the colors mean.  
+  
+```{r}
+factpal <- colorFactor(topo.colors(5), favorite_by_anna$top3)
+
+leaflet(data = favorite_by_anna) %>% 
+  addProviderTiles(providers$Stamen.Terrain) %>% 
+  addCircles(lng = ~long, 
+             lat = ~lat, 
+             label = ~place, 
+             weight = 10, 
+             opacity = 1,
+             color = ~factpal(top3))  %>%
+  addPolylines(lng = ~long, 
+               lat = ~lat, 
+               color = col2hex("darkred"))
+
+
+```
+
   
   * Connect all your locations together with a line in a meaningful way (you may need to order them differently in the original data).  
   
@@ -316,7 +321,27 @@ Stations<-read_csv("http://www.macalester.edu/~dshuman1/data/112/DC-Stations.csv
   9. Use the latitude and longitude variables in `Stations` to make a visualization of the total number of departures from each station in the `Trips` data. Use either color or size to show the variation in number of departures. This time, plot the points on top of a map. Use any of the mapping tools you'd like.
   
 ```{r}
+stationTrips <- Trips %>%
+  #select(sstation, client) %>%
+  group_by(sstation) %>%
+  mutate(count = n()) %>%
+  #mutate(sum = count(sstation)) %>%
+  left_join(Stations, 
+            by = c("sstation" = "name")) 
+stationTrips
 
+pal <- colorNumeric("magma", 
+                     domain = stationTrips$sstation) 
+
+leaflet(stationTrips) %>%
+  addProviderTiles(providers$Stamen.Terrain) %>%
+  addCircles(lng = ~long, 
+             lat = ~lat, 
+             label = ~sstation, 
+             weight = 5, 
+             opacity = .5,
+             color = ~pal(sstation))
+  
 ```
   
   10. Only 14.4% of the trips in our data are carried out by casual users. Create a plot that shows which area(s) have stations with a much higher percentage of departures by casual users. What patterns do you notice? Also plot this on top of a map. I think it will be more clear what the patterns are.

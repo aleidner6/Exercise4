@@ -110,7 +110,7 @@ ggmap(world) + # creates the map "background"
              size = .1) +
   theme_map()
 ```
-
+Based on the visualization above, Starbucks in North and South America are mostly Company Owned and Licensed. In Asia and Europe, however, there are many Joint Venture Starbucks in addition to Company Owned and Licensed Starbucks.
 
   2. Construct a new map of Starbucks locations in the Twin Cities metro area (approximately the 5 county metro area).  
   
@@ -145,8 +145,9 @@ ggmap(twincities) + # creates the map "background"
   geom_point(data = Starbucks, 
              aes(x = Longitude, y = Latitude), 
              alpha = 1, 
-             size = 2) +
-  labs(title = "Starbucks near Macalester") +
+             size = 2,
+             color = "lightgreen") +
+  labs(title = "Starbucks in the Twin Cities") +
   theme_map()
 ```
 
@@ -156,14 +157,15 @@ ggmap(twincities) + # creates the map "background"
 ```{r}
 twincities <- get_stamenmap(
     bbox = c(left = -93.4471, bottom = 44.8173, right = -92.7838, top = 45.1316), 
-    maptype = "terrain",
+    maptype = "terrain-lines",
     zoom = 11)
 
 ggmap(twincities) + # creates the map "background"
   geom_point(data = Starbucks, 
              aes(x = Longitude, y = Latitude), 
              alpha = 1, 
-             size = 2) +
+             size = 2, 
+             color = "lightgreen") +
   annotate(geom = "text", y = 44.9416, x = -93.16, label = "Macalester College")  +
   labs(title = "Starbucks in the Twin Cities") +
   theme_map()
@@ -229,64 +231,54 @@ starbucks_with_2018_pop_est %>%
 
 favorite_by_anna <- tibble(
   place = c("Kimchi Tofu House", "Tono Pizzeria + Cheesesteak", 
-            "Macalester College", "Science Museum of Minnesota", "Target Field", "Saint Paul Home",
-            "Riverside Park", "NYC Home", "Jin Fong Restaurant", "The High Line", "Citi Field", "Kate's Seafood", 
-            "Long Nook Beach"), 
+            "Macalester College", "Science Museum of Minnesota", "Target Field", 
+            "Saint Paul Home", "Riverside Park", "NYC Home", 
+            "Jin Fong Restaurant", "The High Line", "Citi Field", 
+            "Kate's Seafood", "Long Nook Beach"), 
   long = c( -93.22693673444148, -93.16733278846144, 
            -93.16905451640325, -93.09913377060474,   
            -93.27759701544593, -93.15993888846154,
-           -73.9729219893889, -73.9717327732488, -73.97883524441367,  -74.0039163349285, -73.84583203092146, -70.11022135787704,
+           -73.9729219893889, -73.9717327732488, 
+           -73.97883524441367,  -74.0039163349285, 
+           -73.84583203092146, -70.11022135787704,
            -70.03705415706891), 
   lat = c(44.97333972848076, 44.934273777055594, 
           44.93861924693568, 44.946322266714894,  
           44.9818947558888, 44.93189077914104, 
-          40.801862889204585, 40.79972265717478, 40.78301103574647, 40.751173188177894, 40.75725834451115, 41.75483506515295, 
+          40.801862889204585, 40.79972265717478, 
+          40.78301103574647, 40.751173188177894, 
+          40.75725834451115, 41.75483506515295, 
           42.02195492958253), 
-  top3 = c("no", "no", "yes", "no", "no", "no", "yes", "yes", "no", "no", "no", "no", "no")
+  top3 = c("Not Top 3", "Not Top 3", "Top 3", "Not Top 3", "Not Top 3", "Not Top 3", "Top 3", "Top 3", "Not Top 3", "Not Top 3", "Not Top 3", "Not Top 3", "Not Top 3")
 )
 
-# favorite_by_anna <- tibble(
-#   place = c("Saint Paul Home", "Kimchi Tofu House", "Tono Pizzeria + Cheesesteak", 
-#             "Macalester College", "Science Museum of Minnesota", "NYC Home", 
-#             "Citi Field", "Target Field", "The High Line", 
-#             "Riverside Park", "Jin Fong Restaurant", "Kate's Seafood", 
-#             "Long Nook Beach"), 
-#   long = c(-93.15993888846154, -93.22693673444148, -93.16733278846144, 
-#            -93.16905451640325, -93.09913377060474,  -73.9717327732488, 
-#            -73.84583203092146, -93.27759701544593, -74.0039163349285, 
-#            -73.9729219893889, -73.97883524441367, -70.11022135787704,
-#            -70.03705415706891), 
-#   lat = c(44.93189077914104, 44.97333972848076, 44.934273777055594, 
-#           44.93861924693568, 44.946322266714894, 40.79972265717478, 
-#           40.75725834451115, 44.9818947558888, 40.751173188177894, 
-#           40.801862889204585, 40.78301103574647, 41.75483506515295, 
-#           42.02195492958253), 
-#   top3 = c("", "", "", "", "", "Top 3", "", "", "", "Top 3", "", "", "Top 3")
-# )
 
-# leaflet(data = favorite_by_anna) %>% 
-#   addTiles() %>% 
-#   addMarkers(lng = ~long, 
-#              lat = ~lat, 
-#              label = ~place) 
 ```
 
   * Create a `leaflet` map that uses circles to indicate your favorite places. Label them with the name of the place. Choose the base map you like best. Color your 3 favorite places differently than the ones that are not in your top 3 (HINT: `colorFactor()`). Add a legend that explains what the colors mean.  
   
 ```{r}
-factpal <- colorFactor(topo.colors(5), favorite_by_anna$top3)
+factpal <- colorFactor(topo.colors(3), favorite_by_anna$top3)
 
 leaflet(data = favorite_by_anna) %>% 
   addProviderTiles(providers$Stamen.Terrain) %>% 
   addCircles(lng = ~long, 
              lat = ~lat, 
              label = ~place, 
-             weight = 10, 
+             weight = 5, 
              opacity = 1,
              color = ~factpal(top3))  %>%
   addPolylines(lng = ~long, 
                lat = ~lat, 
-               color = col2hex("darkred"))
+               color = col2hex("darkred")) %>%
+  
+  
+  
+  addLegend(pal = factpal, 
+            values = ~top3, 
+            opacity = 0.5, 
+            title = NULL,
+            position = "bottomright") 
 
 
 ```
@@ -338,8 +330,7 @@ washingtondc <- get_stamenmap(
 ggmap(washingtondc) +
   geom_point(data = stationTrips, 
              aes(x = long, y = lat, color = total),
-             siz
-             e = .8) +
+             size = .8) +
   scale_color_viridis_c(option = "magma") +
   theme_map() +
   theme(legend.background = element_blank())
@@ -349,18 +340,24 @@ ggmap(washingtondc) +
   10. Only 14.4% of the trips in our data are carried out by casual users. Create a plot that shows which area(s) have stations with a much higher percentage of departures by casual users. What patterns do you notice? Also plot this on top of a map. I think it will be more clear what the patterns are.
   
 ```{r}
+#work on this one...
 washingtondc <- get_stamenmap(
     bbox = c(left = -77.1869, bottom = 38.8107, right = -76.8374, top = 38.9684), 
     maptype = "terrain",
     zoom = 12
 )
+
+stationTrips <- stationTrips %>%
+  mutate(propcasual = mean(client == "Casual"))
+
 ggmap(washingtondc) +
   geom_point(data = stationTrips, 
-             aes(x = long, y = lat, color = client),
+             aes(x = long, y = lat, color = propcasual),
              size = .8) +
   scale_color_viridis_c(option = "magma") +
   theme_map() +
-  theme(legend.background = element_blank())
+  #+
+  #theme(legend.background = element_blank())
 ```
   
 ### COVID-19 data
@@ -418,7 +415,15 @@ leaflet(data = MplsStops) %>%
              weight = 5, 
              opacity = 1,
              stroke = FALSE,
-             color = ~factpal(problem))
+             color = ~factpal(problem)) %>%
+  
+  addLegend(pal = factpal, 
+            values = ~problem, 
+            opacity = 0.5, 
+            title = NULL,
+            position = "bottomright") 
+
+
 ```
   
   16. Save the folder from moodle called Minneapolis_Neighborhoods into your project/repository folder for this assignment. Make sure the folder is called Minneapolis_Neighborhoods. Use the code below to read in the data and make sure to **delete the `eval=FALSE`**. Although it looks like it only links to the .sph file, you need the entire folder of files to create the `mpls_nbhd` data set. These data contain information about the geometries of the Minneapolis neighborhoods. Using the `mpls_nbhd` dataset as the base file, join the `mpls_suspicious` and `MplsDemo` datasets to it by neighborhood (careful, they are named different things in the different files). Call this new dataset `mpls_all`.
@@ -431,6 +436,7 @@ mpls_all <- mpls_nbhd %>%
             by = c("BDNAME" = "neighborhood")) %>%
   left_join(MplsDemo, 
             by = c("BDNAME" = "neighborhood"))
+mpls_all
 ```
 
 
@@ -463,5 +469,6 @@ leaflet(data = mpls_all) %>%
 
   19. Below, provide a link to your GitHub page with this set of Weekly Exercises. Specifically, if the name of the file is 04_exercises.Rmd, provide a link to the 04_exercises.md file, which is the one that will be most readable on GitHub.
 
+[Github Link Exercise 4](https://github.com/aleidner6/Exercise4/blob/master/04_exercises.md)
 
 **DID YOU REMEMBER TO UNCOMMENT THE OPTIONS AT THE TOP?**

@@ -221,7 +221,7 @@ starbucks_with_2018_pop_est %>%
        fill = "Starbucks per 10,000 People",
        caption = "Plot created by Anna Leidner")
 ```
-  
+#Lighter colors (more Starbucks per 10,000 people) are related to the population size of a city, like in New York, the lighter yellow shows where New York City is, where there are going to be more Starbucks. California shows a similar pattern, where the two splotches of yellow are likely where San Francisco and Los Angeles are. 
 
 ### A few of your favorite things (`leaflet`)
 
@@ -282,7 +282,7 @@ leaflet(data = favorite_by_anna) %>%
 ```
 
   
-  * Connect all your locations together with a line in a meaningful way (you may need to order them differently in the original data).  
+  * Connect all your locations together with a line in a meaningful way (you may need to order them differently in the original data).  I reordered the points so that the NYC Home, the home I grew up in, is the midpoint between the points in Massachusetts and Minnesota.
   
   * If there are other variables you want to add that could enhance your plot, do that now.  
   
@@ -333,7 +333,7 @@ ggmap(washingtondc) +
   theme_map() +
   #theme(legend.background = element_blank()) +
   labs(title = "Total Number of Departures By Station", 
-       fill = "Number of Departures")
+       fill = guide_legend("Number of Departures"))
   
 ```
   
@@ -488,7 +488,7 @@ leaflet(data = MplsStops) %>%
   
   16. Save the folder from moodle called Minneapolis_Neighborhoods into your project/repository folder for this assignment. Make sure the folder is called Minneapolis_Neighborhoods. Use the code below to read in the data and make sure to **delete the `eval=FALSE`**. Although it looks like it only links to the .sph file, you need the entire folder of files to create the `mpls_nbhd` data set. These data contain information about the geometries of the Minneapolis neighborhoods. Using the `mpls_nbhd` dataset as the base file, join the `mpls_suspicious` and `MplsDemo` datasets to it by neighborhood (careful, they are named different things in the different files). Call this new dataset `mpls_all`.
 
-```{r, eval=FALSE}
+```{r}
 mpls_nbhd <- st_read("Minneapolis_Neighborhoods/Minneapolis_Neighborhoods.shp", quiet = TRUE)
 
 mpls_all <- mpls_nbhd %>%
@@ -503,8 +503,10 @@ mpls_all
   17. Use `leaflet` to create a map from the `mpls_all` data  that colors the neighborhoods by `prop_suspicious`. Display the neighborhood name as you scroll over it. Describe what you observe in the map.
   
 ```{r}
-pal2 <- colorFactor(topo.colors(5), mpls_all$prop_suspicious)
+#pal2 <- colorFactor(topo.colors(5), mpls_all$prop_suspicious)
 
+pal2 <- colorNumeric("magma",
+                    domain = mpls_all$prop_suspicious)
 
 leaflet(data = mpls_all) %>% 
   addProviderTiles(providers$Stamen.Terrain) %>% 
@@ -513,27 +515,42 @@ leaflet(data = mpls_all) %>%
              label = ~BDNAME, 
              weight = 3, 
              opacity = 1,
-             color = ~pal2(prop_suspicious))
+             color = ~pal2(prop_suspicious)) %>%
+  addLegend(pal = pal2,
+            values = ~prop_suspicious,
+            opacity = 0.5,
+            title = NULL,
+            position = "bottomright")
 ```
   
-  
+In the map, there is a clear lines separating different neighborhoods by different suspicious proportions.  I would have to guess that the neighborhoods with the darker dots (smaller proportion of suspicious stops), are more likely to be White neighborhoods, while the neighborhoods with the more yellow dots (larger proportion of suspicious stops), are more likely to be neighborhoods with a larger population of people of color.
+
+
   18. Use `leaflet` to create a map of your own choosing. Come up with a question you want to try to answer and use the map to help answer that question. Describe what your map shows. 
+
   
 ```{r}
-pal <- colorNumeric("magma",
-                    domain = mallorca_bike_day7$ele)
 
-leaflet(mallorca_bike_day7) %>% 
-  addProviderTiles(providers$Esri.WorldImagery) %>% 
-  addCircles(lng = ~lon,
+#Do the number of suspicious police stops change based on the demographics of the neighborhood?
+
+#pal3 <- colorFactor(topo.colors(5), mpls_all$stops)
+pal3 <- colorNumeric("magma",
+                    domain = mpls_all$stops)
+
+leaflet(mpls_all) %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>% 
+  addCircles(lng = ~long,
              lat = ~lat,
-             color = ~pal(ele),
-             label = ~round(speed,1)) %>% 
+             color = ~pal3(stops),
+             label = ~race, 
+             weight = .3,
+             opacity = .4) %>% 
   addLegend("topleft",
-            pal = pal,
-            values = ~ele)
+            pal = pal3,
+            values = ~stops)
 ```
   
+When looking at the above map, it seems as though the number of stops is affected by the population of the area, or density of commuters. The number of stops does seem loosely correlated with the suspicious proportion, but the correlation is not extremely strong or clear. 
   
   
 ## GitHub link

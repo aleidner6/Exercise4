@@ -469,13 +469,14 @@ factpal <- colorFactor(topo.colors(5), MplsStops$problem)
 
 leaflet(data = MplsStops) %>% 
   addProviderTiles(providers$Stamen.Terrain) %>% 
-  addCircles(lng = ~long, 
+  addCircleMarkers(lng = ~long,
              lat = ~lat, 
              label = ~neighborhood, 
-             weight = 5, 
+             weight = 3, 
              opacity = 1,
              stroke = FALSE,
-             color = ~factpal(problem)) %>%
+             color = ~factpal(problem), 
+             radius = 1) %>%
   
   addLegend(pal = factpal, 
             values = ~problem, 
